@@ -1,0 +1,6 @@
+{
+  "name": "WhatsApp Financial Chatbot Tracker",
+  "description": "A WhatsApp chatbot simulator and financial manager that automatically logs income and expenses from text and receipts using Gemini AI, with visual dashboards and PDF exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
