@@ -9,13 +9,16 @@ import { createServer as createViteServer } from 'vite';
 import { readTransactions, addTransaction, deleteTransaction } from './server/db';
 import { parseWithGemini } from './server/gemini';
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
 
-  // Increase payload limit to support base64 receipts
-  app.use(express.json({ limit: '15mb' }));
-  app.use(express.urlencoded({ limit: '15mb', extended: true }));
+// Increase payload limit to support base64 receipts
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
+
+export default app;
+
+async function startServer() {
+  const PORT = 3000;
 
   // ==========================================
   // API ROUTES
@@ -213,10 +216,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`WhatsApp Webhook is active at: http://localhost:${PORT}/api/webhook/whatsapp`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`WhatsApp Webhook is active at: http://localhost:${PORT}/api/webhook/whatsapp`);
+    });
+  }
 }
 
 startServer();

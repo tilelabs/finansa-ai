@@ -7,7 +7,10 @@ import fs from 'fs';
 import path from 'path';
 import { Transaction } from '../src/types';
 
-const DB_FILE = path.join(process.cwd(), 'transactions.json');
+const isVercel = !!process.env.VERCEL;
+const DB_FILE = isVercel
+  ? path.join('/tmp', 'transactions.json')
+  : path.join(process.cwd(), 'transactions.json');
 
 // Helper to get past dates
 function getPastDate(daysAgo: number): string {
@@ -157,6 +160,18 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 export function readTransactions(): Transaction[] {
   try {
     if (!fs.existsSync(DB_FILE)) {
+      if (isVercel) {
+        const initialDbPath = path.join(process.cwd(), 'transactions.json');
+        if (fs.existsSync(initialDbPath)) {
+          try {
+            const initialData = fs.readFileSync(initialDbPath, 'utf-8');
+            fs.writeFileSync(DB_FILE, initialData, 'utf-8');
+            return JSON.parse(initialData);
+          } catch (copyErr) {
+            console.error('Failed to copy initial DB to /tmp, using default:', copyErr);
+          }
+        }
+      }
       writeTransactions(INITIAL_TRANSACTIONS);
       return INITIAL_TRANSACTIONS;
     }
